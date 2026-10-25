@@ -1,16 +1,266 @@
-<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LUNGA INCOME SYSTEM</title><style>
-:root{--orange:#ff7a00;--black:#101114;--bg:#f3f4f6;--white:#fff;--muted:#6b7280}*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:#171717}.hero{background:linear-gradient(135deg,#111 0%,#27211c 65%,#ff7a00 100%);color:white;padding:28px 18px 24px}.hero h1{margin:0;font-size:clamp(24px,6vw,36px);letter-spacing:.5px}.hero p{margin:8px 0 0;color:#f4d8c0}.wrap{max-width:980px;margin:auto;padding:18px}.card{background:white;border-radius:16px;padding:18px;margin:0 0 16px;box-shadow:0 4px 18px #0000000b}.row{display:flex;gap:12px;flex-wrap:wrap}.row>*{flex:1;min-width:140px}label{display:block;font-size:13px;color:#555;margin:8px 0 5px}input,select,button{width:100%;font:inherit;padding:12px;border:1px solid #ddd;border-radius:10px;background:white}button{background:var(--orange);border:0;color:#111;font-weight:700;margin-top:10px;cursor:pointer}button.secondary{background:#222;color:white}button.danger{background:#ffe8d6}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat{background:#fff7ed;border-radius:12px;padding:13px}.stat small{color:#6b4c34}.stat strong{display:block;font-size:22px;margin-top:5px}.platforms{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}.platform{border:1px solid #eee;border-radius:12px;padding:12px}.platform h3{font-size:14px;margin:0 0 8px}.platform input{padding:9px}.tablewrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:600px}th,td{text-align:left;padding:10px;border-bottom:1px solid #eee;font-size:13px}th{background:#fff7ed}.hint{font-size:12px;color:var(--muted);line-height:1.5}.hidden{display:none}.badge{display:inline-block;background:#fff0df;color:#9a4b00;padding:4px 8px;border-radius:20px;font-size:12px}footer{text-align:center;color:#777;font-size:12px;padding:20px}
-</style></head><body>
-<header class="hero"><div class="wrap"><span class="badge">PERSONAL INCOME TRACKER</span><h1>💰 LUNGA INCOME SYSTEM</h1><p>Track platform earnings, withdrawals and your USD / ZAR totals.</p></div></header>
-<main class="wrap">
-<section class="card" id="loginCard"><h2>🔐 Sign in / Create account</h2><p class="hint">Connect Firebase Authentication by adding your project's web configuration below. This page does not save passwords locally.</p><div class="row"><div><label>Email</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com"></div><div><label>Password</label><input id="password" type="password" autocomplete="current-password" placeholder="At least 6 characters"></div></div><div class="row"><button id="signup">Create account</button><button id="signin" class="secondary">Sign in</button></div><p id="authMsg" class="hint"></p></section>
-<section class="card"><div class="row"><div><h2>📊 Income dashboard</h2><span class="badge" id="status">Not connected</span></div><div><label>USD → ZAR rate</label><input id="rate" type="number" min="0" step="0.01" value="18.50"></div></div><div class="stats"><div class="stat"><small>Total USD</small><strong id="totalUsd">$0.00</strong></div><div class="stat"><small>Estimated ZAR</small><strong id="totalZar">R0.00</strong></div><div class="stat"><small>Net after withdrawals (ZAR)</small><strong id="netZar">R0.00</strong></div></div></section>
-<section class="card"><h2>➕ Record income</h2><div class="row"><div><label>Platform</label><select id="platform"><option>TimeBucks</option><option>Clickworker</option><option>MaxBounty</option><option>ClickBank</option><option>CPAGrip</option><option>Adsterra</option><option>Other</option></select></div><div><label>Amount (USD)</label><input id="amount" type="number" min="0" step="0.01" placeholder="0.00"></div><div><label>Date</label><input id="date" type="date"></div></div><label>Note (optional)</label><input id="note" placeholder="Survey, task, campaign..."/><button id="addIncome">Add income</button></section>
-<section class="card"><h2>💸 Record withdrawal</h2><div class="row"><div><label>Amount (USD)</label><input id="withdrawal" type="number" min="0" step="0.01" placeholder="0.00"></div><div><label>Date</label><input id="wdate" type="date"></div></div><button id="addWithdrawal" class="secondary">Add withdrawal</button></section>
-<section class="card"><div class="row"><h2>🧾 Records</h2><button id="export" class="secondary">Export CSV</button></div><div class="tablewrap"><table><thead><tr><th>Date</th><th>Type</th><th>Platform</th><th>Amount USD</th><th>Note</th><th></th></tr></thead><tbody id="records"></tbody></table></div><p class="hint">Records are stored in this browser until Firebase is connected. Use CSV export for a backup.</p><button id="logout" class="danger">Sign out</button></section>
-<section class="card"><h2>⚙️ Connect your Firebase project</h2><p class="hint">In Firebase Console → Project settings → General → Your apps → Web app, copy the config values and paste them here. Then tap Connect. Enable Authentication → Sign-in method → Email/Password in Firebase first. For secure cloud records, Firestore and security rules must also be configured.</p><label>Firebase config (paste the JavaScript config object)</label><textarea id="firebaseConfig" rows="6" style="width:100%;border:1px solid #ddd;border-radius:10px;padding:12px" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","appId":"..."}'></textarea><button id="connect">Connect Firebase</button><p id="firebaseMsg" class="hint"></p></section>
-<footer>LUNGA INCOME SYSTEM · Personal tracker · Keep your Firebase keys private.</footer></main>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LUNGA INCOME SYSTEM</title>
+<style>
+:root{--orange:#ff7a00;--dark:#171717;--bg:#f4f5f7;--white:#fff;--muted:#737783;--border:#e8e8ec}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:#202127}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{display:none;min-height:100vh}
+.sidebar{width:245px;background:#171717;color:white;padding:24px 15px;position:fixed;inset:0 auto 0 0;overflow-y:auto;z-index:5}
+.brand{font-size:19px;font-weight:800;line-height:1.5;padding:0 10px 25px}
+.brand span{color:var(--orange)}
+.nav-label{font-size:10px;letter-spacing:2px;color:#999;padding:12px 12px}
+.nav-btn{display:flex;align-items:center;gap:12px;width:100%;padding:13px 12px;margin:4px 0;border:0;border-radius:10px;background:transparent;color:#d4d4d4;text-align:left}
+.nav-btn.active,.nav-btn:hover{background:var(--orange);color:#171717;font-weight:750}
+.sidebar-foot{margin-top:28px;border-top:1px solid #393939;padding:18px 8px;font-size:12px;color:#aaa;overflow-wrap:anywhere}
+.main{margin-left:245px;padding:25px;max-width:1600px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:24px}
+.topbar h1{font-size:26px;margin:0}
+.topbar p{color:var(--muted);font-size:13px;margin:5px 0 0}
+.user-pill{background:#fff;border:1px solid var(--border);border-radius:30px;padding:10px 14px;font-size:12px;overflow-wrap:anywhere}
+.mobile-menu{display:none;background:#222;color:white;width:auto;margin:0;padding:10px 13px}
+.page{display:none}
+.page.active{display:block}
+.card{background:white;border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:18px;min-width:0}
+.card h2{font-size:18px;margin:0 0 16px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.stat{background:white;border:1px solid var(--border);border-radius:16px;padding:19px;min-width:0}
+.stat small{color:var(--muted);font-size:12px}
+.stat strong{display:block;font-size:25px;margin-top:10px;overflow-wrap:anywhere}
+.stat .icon{font-size:22px;margin-bottom:12px}
+.orange{color:#e86d00}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.field{flex:1;min-width:180px}
+label{display:block;font-size:13px;color:#555;margin:12px 0 6px}
+input,select{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;background:white;color:#222}
+.btn{border:0;background:var(--orange);color:#171717;font-weight:750;border-radius:10px;padding:12px 16px;margin-top:14px}
+.btn.dark{background:#222;color:white}
+.btn.light{background:#fff0e0;color:#8d4300}
+.btn.small{padding:8px 10px;margin:0;font-size:12px}
+.hint{font-size:12px;color:var(--muted);line-height:1.6}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:570px}
+th,td{text-align:left;padding:12px 10px;border-bottom:1px solid #eee;font-size:13px}
+th{background:#fff7ed;color:#69411e}
+.empty{text-align:center;color:var(--muted);padding:28px}
+.pill{display:inline-block;padding:5px 9px;background:#fff0df;color:#914700;border-radius:30px;font-size:11px}
+.platform-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.platform-item{border:1px solid var(--border);border-radius:12px;padding:15px}
+.platform-item strong{display:block;margin-bottom:8px}
+.bar-row{margin:16px 0}
+.bar-title{display:flex;justify-content:space-between;gap:10px;font-size:13px;margin-bottom:7px}
+.bar-bg{height:9px;border-radius:20px;background:#eee;overflow:hidden}
+.bar-fill{height:100%;background:var(--orange);border-radius:20px}
+.notice{padding:12px;background:#fff7ed;border-radius:10px;font-size:13px;line-height:1.5}
+.login-wrap{max-width:470px;margin:7vh auto;padding:18px}
+.login-brand{background:linear-gradient(135deg,#171717,#33261c,#ff7a00);color:white;border-radius:18px;padding:28px;margin-bottom:16px}
+.login-brand h1{font-size:25px;margin:0}
+.login-brand p{font-size:13px;color:#ffe1c4}
+.login-card{background:white;border:1px solid var(--border);border-radius:16px;padding:22px}
+.login-card h2{margin-top:0}
+.login-card button{width:100%}
+.hidden{display:none!important}
+footer{text-align:center;color:#999;font-size:11px;padding:20px}
+@media(max-width:900px){
+ .sidebar{width:230px;transform:translateX(-100%);transition:transform .2s}
+ .sidebar.open{transform:translateX(0)}
+ .main{margin-left:0;padding:16px}
+ .mobile-menu{display:inline-block}
+ .topbar{align-items:flex-start}
+ .topbar h1{font-size:22px}
+ .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .user-pill{display:none}
+}
+@media(max-width:430px){
+ .grid{gap:9px}
+ .stat{padding:13px}
+ .stat strong{font-size:20px}
+ .card{padding:15px}
+ .field{min-width:100%}
+}
+</style>
+</head>
+<body>
+
+<section id="loginScreen" class="login-wrap">
+  <div class="login-brand">
+    <h1>💰 LUNGA INCOME SYSTEM</h1>
+    <p>Your personal online earnings tracker</p>
+  </div>
+  <div class="login-card">
+    <h2>🔐 Welcome</h2>
+    <p class="hint">Sign in to open your income dashboard, or create a new account.</p>
+    <label>Email address</label>
+    <input id="email" type="email" autocomplete="email" placeholder="you@example.com">
+    <label>Password</label>
+    <input id="password" type="password" autocomplete="current-password" placeholder="At least 6 characters">
+    <button class="btn" id="signin">Sign in</button>
+    <button class="btn dark" id="signup">Create account</button>
+    <p id="authMsg" class="hint" role="status"></p>
+  </div>
+</section>
+
+<div id="app" class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">💰 LUNGA <span>INCOME</span><br>SYSTEM</div>
+    <div class="nav-label">MAIN MENU</div>
+    <button class="nav-btn active" data-page="dashboard">📊 Dashboard</button>
+    <button class="nav-btn" data-page="income">💵 Income</button>
+    <button class="nav-btn" data-page="withdrawals">💸 Withdrawals</button>
+    <button class="nav-btn" data-page="records">🧾 Records</button>
+    <button class="nav-btn" data-page="platforms">🌐 Earning Platforms</button>
+    <button class="nav-btn" data-page="reports">📈 Reports</button>
+    <button class="nav-btn" data-page="settings">⚙️ Settings</button>
+    <div class="sidebar-foot">
+      PERSONAL INCOME TRACKER<br><br>
+      <span id="sideEmail">Not signed in</span>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button id="menuToggle" class="btn mobile-menu">☰</button>
+        <div>
+          <h1 id="pageTitle">Dashboard</h1>
+          <p id="pageSubtitle">Your income at a glance</p>
+        </div>
+      </div>
+      <div class="user-pill" id="userEmail">Account</div>
+    </header>
+
+    <section id="page-dashboard" class="page active">
+      <div class="grid">
+        <div class="stat"><div class="icon">💵</div><small>Total income (USD)</small><strong id="totalUsd">$0.00</strong></div>
+        <div class="stat"><div class="icon">🇿🇦</div><small>Income value (ZAR)</small><strong id="totalZar">R0.00</strong></div>
+        <div class="stat"><div class="icon">💸</div><small>Withdrawn (USD)</small><strong id="withdrawnUsd">$0.00</strong></div>
+        <div class="stat"><div class="icon">💰</div><small>Net balance (ZAR)</small><strong id="netZar">R0.00</strong></div>
+      </div>
+      <div class="card" style="margin-top:18px">
+        <h2>Recent transactions</h2>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Date</th><th>Type</th><th>Platform</th><th>Amount</th><th>Note</th></tr></thead>
+          <tbody id="recentRows"></tbody>
+        </table></div>
+      </div>
+      <div class="card">
+        <h2>Quick actions</h2>
+        <div class="row">
+          <button class="btn" data-goto="income">➕ Record income</button>
+          <button class="btn dark" data-goto="withdrawals">➖ Record withdrawal</button>
+          <button class="btn light" data-goto="reports">📈 View reports</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-income" class="page">
+      <div class="card">
+        <h2>➕ Record new income</h2>
+        <div class="row">
+          <div class="field"><label>Platform</label><select id="platform"></select></div>
+          <div class="field"><label>Amount (USD)</label><input id="amount" type="number" min="0.01" step="0.01" placeholder="0.00"></div>
+          <div class="field"><label>Date</label><input id="date" type="date"></div>
+        </div>
+        <label>Note (optional)</label><input id="note" placeholder="Survey, task, campaign...">
+        <button class="btn" id="addIncome">Save income</button>
+        <p class="hint">Enter earnings you have actually received or earned. Amounts are recorded in USD.</p>
+      </div>
+    </section>
+
+    <section id="page-withdrawals" class="page">
+      <div class="card">
+        <h2>💸 Record withdrawal</h2>
+        <div class="row">
+          <div class="field"><label>Withdrawal amount (USD)</label><input id="withdrawal" type="number" min="0.01" step="0.01" placeholder="0.00"></div>
+          <div class="field"><label>Withdrawal date</label><input id="wdate" type="date"></div>
+        </div>
+        <label>Platform or payment method</label>
+        <select id="withdrawPlatform"></select>
+        <label>Note (optional)</label><input id="withdrawNote" placeholder="PayPal, bank, wallet...">
+        <button class="btn dark" id="addWithdrawal">Save withdrawal</button>
+        <p class="hint">Withdrawals reduce your calculated net balance. This tracker does not move money or connect to payment accounts.</p>
+      </div>
+    </section>
+
+    <section id="page-records" class="page">
+      <div class="card">
+        <h2>🧾 All transactions</h2>
+        <div class="row">
+          <div class="field"><label>Search records</label><input id="searchRecords" placeholder="Search platform or note..."></div>
+          <div class="field"><label>Transaction type</label><select id="filterType"><option value="All">All types</option><option>Income</option><option>Withdrawal</option></select></div>
+          <div class="field" style="align-self:end"><button class="btn dark" id="export">Export CSV</button></div>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Date</th><th>Type</th><th>Platform</th><th>Amount USD</th><th>Note</th><th>Action</th></tr></thead>
+          <tbody id="records"></tbody>
+        </table></div>
+        <p class="hint">Keep regular CSV backups of your records.</p>
+      </div>
+    </section>
+
+    <section id="page-platforms" class="page">
+      <div class="card">
+        <h2>🌐 Earning platforms</h2>
+        <p class="hint">Add the platforms you use. Your platform list will appear in the income and withdrawal forms.</p>
+        <div class="row">
+          <div class="field"><label>New platform name</label><input id="newPlatform" placeholder="Enter platform name"></div>
+          <div class="field" style="align-self:end"><button class="btn" id="addPlatform">Add platform</button></div>
+        </div>
+      </div>
+      <div class="card"><div id="platformList" class="platform-grid"></div></div>
+    </section>
+
+    <section id="page-reports" class="page">
+      <div class="grid">
+        <div class="stat"><small>Income this month</small><strong id="monthIncome">$0.00</strong></div>
+        <div class="stat"><small>Withdrawals this month</small><strong id="monthWithdrawals">$0.00</strong></div>
+        <div class="stat"><small>Transactions</small><strong id="transactionCount">0</strong></div>
+        <div class="stat"><small>Platforms used</small><strong id="platformCount">0</strong></div>
+      </div>
+      <div class="card" style="margin-top:18px">
+        <h2>Income by platform</h2>
+        <div id="platformReport"></div>
+      </div>
+      <div class="card">
+        <h2>Monthly summary</h2>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Month</th><th>Income (USD)</th><th>Withdrawals (USD)</th><th>Net (USD)</th></tr></thead>
+          <tbody id="monthlyRows"></tbody>
+        </table></div>
+      </div>
+    </section>
+
+    <section id="page-settings" class="page">
+      <div class="card">
+        <h2>⚙️ General settings</h2>
+        <label>USD to ZAR exchange rate</label>
+        <input id="rate" type="number" min="0.01" step="0.01" value="18.50">
+        <p class="hint">This is an estimate. Set the rate you want to use; it is not a live currency feed.</p>
+        <button class="btn" id="saveSettings">Save settings</button>
+        <p id="settingsMsg" class="hint"></p>
+      </div>
+      <div class="card">
+        <h2>🔐 Account</h2>
+        <p class="hint">Signed in as <strong id="settingsEmail"></strong></p>
+        <button class="btn dark" id="logout">Sign out</button>
+      </div>
+      <div class="card">
+        <h2>💾 Data and privacy</h2>
+        <p class="notice">Your transaction records and settings are stored in this browser on this device. They are not automatically backed up to Firebase or shared across devices. Export your records regularly.</p>
+        <button class="btn light" id="backup">Download CSV backup</button>
+      </div>
+    </section>
+
+    <footer>LUNGA INCOME SYSTEM · Personal income tracker</footer>
+  </main>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
@@ -32,84 +282,304 @@ const firebaseConfig = {
 };
 
 const $ = id => document.getElementById(id);
-
-let app;
-let auth;
-let user = null;
-let records = JSON.parse(localStorage.getItem("lungaRecords") || "[]");
-
-const today = new Date().toISOString().slice(0, 10);
+const today = new Date().toISOString().slice(0,10);
 $("date").value = today;
 $("wdate").value = today;
 
-function initFirebase() {
-  if (auth) return auth;
+let auth;
+let user = null;
+let records = readJSON("lungaRecords", []);
+let platforms = readJSON("lungaPlatforms", [
+  "TimeBucks","Clickworker","MaxBounty","ClickBank",
+  "CPAGrip","Adsterra","Other"
+]);
+let settings = readJSON("lungaSettings", {rate:18.50});
 
-  app = initializeApp(firebaseConfig);
-  auth = getAuth(app);
-
-  return auth;
+function readJSON(key, fallback) {
+  try {
+    const value = JSON.parse(localStorage.getItem(key));
+    return value ?? fallback;
+  } catch {
+    return fallback;
+  }
 }
 
-function save() {
+function persist() {
   localStorage.setItem("lungaRecords", JSON.stringify(records));
+  localStorage.setItem("lungaPlatforms", JSON.stringify(platforms));
+  localStorage.setItem("lungaSettings", JSON.stringify(settings));
+}
+
+const money = amount => "$" + Number(amount || 0).toFixed(2);
+const zar = amount => "R" + Number(amount || 0).toFixed(2);
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[char]));
+}
+
+const pageInfo = {
+  dashboard:["Dashboard","Your income at a glance"],
+  income:["Income","Record your earnings"],
+  withdrawals:["Withdrawals","Track money you withdraw"],
+  records:["Records","Search and manage transactions"],
+  platforms:["Earning Platforms","Manage your platforms"],
+  reports:["Reports","Understand your income"],
+  settings:["Settings","Manage your preferences"]
+};
+
+function showPage(name) {
+  if (!pageInfo[name]) name = "dashboard";
+  document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
+  $("page-" + name).classList.add("active");
+  document.querySelectorAll(".nav-btn").forEach(button => {
+    button.classList.toggle("active", button.dataset.page === name);
+  });
+  $("pageTitle").textContent = pageInfo[name][0];
+  $("pageSubtitle").textContent = pageInfo[name][1];
+  $("sidebar").classList.remove("open");
+  history.replaceState(null, "", "#" + name);
   render();
 }
 
-function render() {
-  const rate = Number($("rate").value) || 0;
-  const income = records
-    .filter(r => r.type === "Income")
-    .reduce((sum, r) => sum + r.amount, 0);
-  const withdrawals = records
-    .filter(r => r.type === "Withdrawal")
-    .reduce((sum, r) => sum + r.amount, 0);
+document.querySelectorAll(".nav-btn").forEach(button => {
+  button.addEventListener("click", () => showPage(button.dataset.page));
+});
+document.querySelectorAll("[data-goto]").forEach(button => {
+  button.addEventListener("click", () => showPage(button.dataset.goto));
+});
+$("menuToggle").onclick = () => $("sidebar").classList.toggle("open");
 
-  $("totalUsd").textContent = "$" + income.toFixed(2);
-  $("totalZar").textContent = "R" + (income * rate).toFixed(2);
-  $("netZar").textContent =
-    "R" + ((income - withdrawals) * rate).toFixed(2);
-
-  $("records").innerHTML = "";
-
-  records.slice().reverse().forEach((record, index) => {
-    const tr = document.createElement("tr");
-
-    [
-      record.date,
-      record.type,
-      record.platform,
-      "$" + record.amount.toFixed(2),
-      record.note || ""
-    ].forEach(value => {
-      const td = document.createElement("td");
-      td.textContent = value;
-      tr.appendChild(td);
-    });
-
-    const td = document.createElement("td");
-    const button = document.createElement("button");
-    button.textContent = "Delete";
-    button.className = "danger";
-
-    button.onclick = () => {
-      records.splice(records.length - 1 - index, 1);
-      save();
-    };
-
-    td.appendChild(button);
-    tr.appendChild(td);
-    $("records").appendChild(tr);
+function updatePlatformSelects() {
+  const names = [...new Set([...platforms, "Other"])];
+  ["platform","withdrawPlatform"].forEach(id => {
+    const select = $(id);
+    const previous = select.value;
+    select.innerHTML = names.map(name =>
+      `<option value="${escapeHTML(name)}">${escapeHTML(name)}</option>`
+    ).join("");
+    if (names.includes(previous)) select.value = previous;
   });
-
-  $("status").textContent = user
-    ? "Signed in: " + user.email
-    : "Not connected";
 }
 
-async function authAction(mode) {
-  $("authMsg").textContent = "";
+function renderRecords() {
+  const query = $("searchRecords").value.trim().toLowerCase();
+  const type = $("filterType").value;
+  const filtered = records.map((record,index) => ({record,index}))
+    .filter(({record}) =>
+      (type === "All" || record.type === type) &&
+      [record.platform,record.note,record.date,record.type]
+        .some(value => String(value || "").toLowerCase().includes(query))
+    ).reverse();
 
+  $("records").innerHTML = filtered.length ? filtered.map(({record,index}) => `
+    <tr>
+      <td>${escapeHTML(record.date)}</td>
+      <td><span class="pill">${escapeHTML(record.type)}</span></td>
+      <td>${escapeHTML(record.platform)}</td>
+      <td>${money(record.amount)}</td>
+      <td>${escapeHTML(record.note || "")}</td>
+      <td><button class="btn light small" data-delete="${index}">Delete</button></td>
+    </tr>`).join("") :
+    `<tr><td colspan="6" class="empty">No matching transactions yet.</td></tr>`;
+
+  $("recentRows").innerHTML = records.length ? records.slice(-5).reverse().map(record => `
+    <tr>
+      <td>${escapeHTML(record.date)}</td>
+      <td>${escapeHTML(record.type)}</td>
+      <td>${escapeHTML(record.platform)}</td>
+      <td>${money(record.amount)}</td>
+      <td>${escapeHTML(record.note || "")}</td>
+    </tr>`).join("") :
+    `<tr><td colspan="5" class="empty">No transactions recorded yet.</td></tr>`;
+}
+
+function renderPlatforms() {
+  $("platformList").innerHTML = platforms.map((name,index) => {
+    const count = records.filter(r => r.type === "Income" && r.platform === name).length;
+    const total = records.filter(r => r.type === "Income" && r.platform === name)
+      .reduce((sum,r) => sum + r.amount, 0);
+    return `<div class="platform-item">
+      <strong>${escapeHTML(name)}</strong>
+      <div class="hint">${count} income record(s)</div>
+      <p>${money(total)} earned</p>
+      <button class="btn light small" data-remove-platform="${index}">Remove platform</button>
+    </div>`;
+  }).join("") || `<p class="hint">No platforms added yet.</p>`;
+}
+
+function renderReports() {
+  const now = new Date();
+  const currentMonth = now.toISOString().slice(0,7);
+  const thisMonth = records.filter(r => String(r.date).slice(0,7) === currentMonth);
+  const sumType = (list,type) => list.filter(r => r.type === type)
+    .reduce((sum,r) => sum + r.amount, 0);
+
+  $("monthIncome").textContent = money(sumType(thisMonth,"Income"));
+  $("monthWithdrawals").textContent = money(sumType(thisMonth,"Withdrawal"));
+  $("transactionCount").textContent = records.length;
+  $("platformCount").textContent = new Set(
+    records.filter(r => r.type === "Income").map(r => r.platform)
+  ).size;
+
+  const earnings = platforms.map(name => ({
+    name,
+    total: sumType(records.filter(r => r.platform === name),"Income")
+  })).filter(item => item.total > 0).sort((a,b) => b.total-a.total);
+
+  const max = Math.max(1,...earnings.map(item => item.total));
+  $("platformReport").innerHTML = earnings.length ? earnings.map(item => `
+    <div class="bar-row">
+      <div class="bar-title"><span>${escapeHTML(item.name)}</span><strong>${money(item.total)}</strong></div>
+      <div class="bar-bg"><div class="bar-fill" style="width:${item.total/max*100}%"></div></div>
+    </div>`).join("") : `<p class="hint">Record income to see your platform report.</p>`;
+
+  const months = [...new Set(records.map(r => String(r.date || "").slice(0,7)).filter(Boolean))].sort().reverse();
+  $("monthlyRows").innerHTML = months.length ? months.map(month => {
+    const list = records.filter(r => String(r.date).slice(0,7) === month);
+    const income = sumType(list,"Income");
+    const withdrawn = sumType(list,"Withdrawal");
+    return `<tr><td>${escapeHTML(month)}</td><td>${money(income)}</td><td>${money(withdrawn)}</td><td>${money(income-withdrawn)}</td></tr>`;
+  }).join("") : `<tr><td colspan="4" class="empty">No monthly data yet.</td></tr>`;
+}
+
+function render() {
+  const rate = Number(settings.rate) || 0;
+  const income = records.filter(r => r.type === "Income").reduce((sum,r) => sum+r.amount,0);
+  const withdrawn = records.filter(r => r.type === "Withdrawal").reduce((sum,r) => sum+r.amount,0);
+
+  $("totalUsd").textContent = money(income);
+  $("totalZar").textContent = zar(income*rate);
+  $("withdrawnUsd").textContent = money(withdrawn);
+  $("netZar").textContent = zar((income-withdrawn)*rate);
+  $("rate").value = settings.rate;
+  $("userEmail").textContent = user ? user.email : "Not signed in";
+  $("sideEmail").textContent = user ? user.email : "Not signed in";
+  $("settingsEmail").textContent = user ? user.email : "";
+
+  updatePlatformSelects();
+  renderRecords();
+  renderPlatforms();
+  renderReports();
+}
+
+function addRecord(type, amount, platform, date, note) {
+  if (!Number.isFinite(amount) || amount <= 0) {
+    alert("Enter an amount greater than zero.");
+    return false;
+  }
+  if (!date) {
+    alert("Please select a date.");
+    return false;
+  }
+  records.push({type,amount,platform,date,note:note || ""});
+  persist();
+  render();
+  return true;
+}
+
+$("addIncome").onclick = () => {
+  if (addRecord("Income",Number($("amount").value),$("platform").value,$("date").value,$("note").value)) {
+    $("amount").value = "";
+    $("note").value = "";
+    alert("Income recorded successfully.");
+    showPage("records");
+  }
+};
+
+$("addWithdrawal").onclick = () => {
+  if (addRecord("Withdrawal",Number($("withdrawal").value),$("withdrawPlatform").value,$("wdate").value,$("withdrawNote").value)) {
+    $("withdrawal").value = "";
+    $("withdrawNote").value = "";
+    alert("Withdrawal recorded successfully.");
+    showPage("records");
+  }
+};
+
+$("records").addEventListener("click", event => {
+  const button = event.target.closest("[data-delete]");
+  if (!button) return;
+  const index = Number(button.dataset.delete);
+  if (confirm("Delete this transaction? This cannot be undone.")) {
+    records.splice(index,1);
+    persist();
+    render();
+  }
+});
+
+$("searchRecords").addEventListener("input", renderRecords);
+$("filterType").addEventListener("change", renderRecords);
+
+$("addPlatform").onclick = () => {
+  const name = $("newPlatform").value.trim();
+  if (!name) {
+    alert("Enter a platform name.");
+    return;
+  }
+  if (platforms.some(item => item.toLowerCase() === name.toLowerCase())) {
+    alert("That platform already exists.");
+    return;
+  }
+  platforms.push(name);
+  $("newPlatform").value = "";
+  persist();
+  render();
+};
+
+$("platformList").addEventListener("click", event => {
+  const button = event.target.closest("[data-remove-platform]");
+  if (!button) return;
+  const index = Number(button.dataset.removePlatform);
+  const name = platforms[index];
+  if (records.some(r => r.platform === name)) {
+    alert("This platform has transaction records. Keep it so your records remain clear.");
+    return;
+  }
+  if (confirm("Remove " + name + " from your platform list?")) {
+    platforms.splice(index,1);
+    persist();
+    render();
+  }
+});
+
+$("saveSettings").onclick = () => {
+  const rate = Number($("rate").value);
+  if (!Number.isFinite(rate) || rate <= 0) {
+    alert("Enter a valid exchange rate greater than zero.");
+    return;
+  }
+  settings.rate = rate;
+  persist();
+  render();
+  $("settingsMsg").textContent = "Settings saved successfully.";
+};
+
+function exportCSV() {
+  const rows = [
+    ["Date","Type","Platform","Amount USD","Note"],
+    ...records.map(r => [r.date,r.type,r.platform,r.amount,r.note || ""])
+  ];
+  const csv = rows.map(row => row.map(value =>
+    '"' + String(value ?? "").replaceAll('"','""') + '"'
+  ).join(",")).join("\r\n");
+
+  const blob = new Blob(["\uFEFF" + csv],{type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "lunga-income-records.csv";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url),1000);
+}
+
+$("export").onclick = exportCSV;
+$("backup").onclick = exportCSV;
+
+async function authenticate(mode) {
+  $("authMsg").textContent = "Please wait...";
   const email = $("email").value.trim();
   const password = $("password").value;
 
@@ -117,118 +587,61 @@ async function authAction(mode) {
     $("authMsg").textContent = "Enter your email and password.";
     return;
   }
-
   if (password.length < 6) {
-    $("authMsg").textContent =
-      "Your password must contain at least 6 characters.";
+    $("authMsg").textContent = "Password must contain at least 6 characters.";
     return;
   }
 
   try {
-    initFirebase();
-
     if (mode === "signup") {
-      await createUserWithEmailAndPassword(auth, email, password);
+      await createUserWithEmailAndPassword(auth,email,password);
     } else {
-      await signInWithEmailAndPassword(auth, email, password);
+      await signInWithEmailAndPassword(auth,email,password);
     }
-
-    $("authMsg").textContent = "Login successful!";
+    $("authMsg").textContent = "Authentication successful.";
   } catch (error) {
-    $("authMsg").textContent =
-      "Login failed: " + error.message;
+    const messages = {
+      "auth/email-already-in-use":"This email already has an account. Please sign in.",
+      "auth/invalid-email":"Please enter a valid email address.",
+      "auth/invalid-credential":"Email or password is incorrect.",
+      "auth/weak-password":"Choose a stronger password.",
+      "auth/too-many-requests":"Too many attempts. Please try again later."
+    };
+    $("authMsg").textContent = messages[error.code] || ("Login failed: " + error.message);
   }
 }
 
-$("signup").onclick = () => authAction("signup");
-$("signin").onclick = () => authAction("signin");
-
-$("connect").onclick = () => {
-  try {
-    initFirebase();
-    $("firebaseMsg").textContent =
-      "Firebase initialized. You can now sign in or create an account.";
-  } catch (error) {
-    $("firebaseMsg").textContent =
-      "Connection error: " + error.message;
-  }
-};
-
-onAuthStateChanged(initFirebase(), currentUser => {
-  user = currentUser;
-  $("loginCard").classList.toggle("hidden", !!user);
-  render();
-});
+$("signin").onclick = () => authenticate("signin");
+$("signup").onclick = () => authenticate("signup");
 
 $("logout").onclick = async () => {
-  if (auth && user) {
+  try {
     await signOut(auth);
+  } catch (error) {
+    alert("Could not sign out: " + error.message);
   }
 };
 
-$("rate").oninput = render;
+try {
+  const appFirebase = initializeApp(firebaseConfig);
+  auth = getAuth(appFirebase);
 
-function add(type, amount, platform, date, note) {
-  if (!Number.isFinite(amount) || amount <= 0) {
-    alert("Enter an amount greater than zero.");
-    return;
-  }
+  onAuthStateChanged(auth, currentUser => {
+    user = currentUser;
+    $("loginScreen").classList.toggle("hidden",!!user);
+    $("app").style.display = user ? "block" : "none";
 
-  records.push({ type, amount, platform, date, note });
-  save();
+    if (user) {
+      render();
+      const page = location.hash.replace("#","");
+      showPage(pageInfo[page] ? page : "dashboard");
+    }
+  });
+} catch (error) {
+  $("authMsg").textContent = "Firebase setup error: " + error.message;
 }
-
-$("addIncome").onclick = () => {
-  add(
-    "Income",
-    Number($("amount").value),
-    $("platform").value,
-    $("date").value,
-    $("note").value
-  );
-
-  $("amount").value = "";
-  $("note").value = "";
-};
-
-$("addWithdrawal").onclick = () => {
-  add(
-    "Withdrawal",
-    Number($("withdrawal").value),
-    "Withdrawal",
-    $("wdate").value,
-    ""
-  );
-
-  $("withdrawal").value = "";
-};
-
-$("export").onclick = () => {
-  const rows = [
-    ["Date", "Type", "Platform", "Amount USD", "Note"],
-    ...records.map(r => [
-      r.date, r.type, r.platform, r.amount, r.note || ""
-    ])
-  ];
-
-  const csv = rows
-    .map(row =>
-      row.map(value =>
-        '"' + String(value).replaceAll('"', '""') + '"'
-      ).join(",")
-    )
-    .join("\r\n");
-
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-
-  link.href = url;
-  link.download = "lunga-income-records.csv";
-  link.click();
-
-  URL.revokeObjectURL(url);
-};
 
 render();
 </script>
+</body>
+</html>
