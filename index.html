@@ -11,7 +11,6 @@
 <section class="card"><div class="row"><h2>🧾 Records</h2><button id="export" class="secondary">Export CSV</button></div><div class="tablewrap"><table><thead><tr><th>Date</th><th>Type</th><th>Platform</th><th>Amount USD</th><th>Note</th><th></th></tr></thead><tbody id="records"></tbody></table></div><p class="hint">Records are stored in this browser until Firebase is connected. Use CSV export for a backup.</p><button id="logout" class="danger">Sign out</button></section>
 <section class="card"><h2>⚙️ Connect your Firebase project</h2><p class="hint">In Firebase Console → Project settings → General → Your apps → Web app, copy the config values and paste them here. Then tap Connect. Enable Authentication → Sign-in method → Email/Password in Firebase first. For secure cloud records, Firestore and security rules must also be configured.</p><label>Firebase config (paste the JavaScript config object)</label><textarea id="firebaseConfig" rows="6" style="width:100%;border:1px solid #ddd;border-radius:10px;padding:12px" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","appId":"..."}'></textarea><button id="connect">Connect Firebase</button><p id="firebaseMsg" class="hint"></p></section>
 <footer>LUNGA INCOME SYSTEM · Personal tracker · Keep your Firebase keys private.</footer></main>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
