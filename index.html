@@ -11,56 +11,225 @@
 <section class="card"><div class="row"><h2>🧾 Records</h2><button id="export" class="secondary">Export CSV</button></div><div class="tablewrap"><table><thead><tr><th>Date</th><th>Type</th><th>Platform</th><th>Amount USD</th><th>Note</th><th></th></tr></thead><tbody id="records"></tbody></table></div><p class="hint">Records are stored in this browser until Firebase is connected. Use CSV export for a backup.</p><button id="logout" class="danger">Sign out</button></section>
 <section class="card"><h2>⚙️ Connect your Firebase project</h2><p class="hint">In Firebase Console → Project settings → General → Your apps → Web app, copy the config values and paste them here. Then tap Connect. Enable Authentication → Sign-in method → Email/Password in Firebase first. For secure cloud records, Firestore and security rules must also be configured.</p><label>Firebase config (paste the JavaScript config object)</label><textarea id="firebaseConfig" rows="6" style="width:100%;border:1px solid #ddd;border-radius:10px;padding:12px" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","appId":"..."}'></textarea><button id="connect">Connect Firebase</button><p id="firebaseMsg" class="hint"></p></section>
 <footer>LUNGA INCOME SYSTEM · Personal tracker · Keep your Firebase keys private.</footer></main>
+
 <script type="module">
-let records=JSON.parse(localStorage.getItem('lungaRecords')||'[]');let user=null;let fb=null;const $=id=>document.getElementById(id);const today=new Date().toISOString().slice(0,10);$('date').value=today;$('wdate').value=today;
-function save(){localStorage.setItem('lungaRecords',JSON.stringify(records));render()}
-function render(){let rate=Number($('rate').value)||0;let inc=records.filter(x=>x.type==='Income').reduce((a,x)=>a+x.amount,0);let wd=records.filter(x=>x.type==='Withdrawal').reduce((a,x)=>a+x.amount,0);$('totalUsd').textContent='$'+inc.toFixed(2);$('totalZar').textContent='R'+(inc*rate).toFixed(2);$('netZar').textContent='R'+((inc-wd)*rate).toFixed(2);$('records').innerHTML='';records.slice().reverse().forEach((r,i)=>{let tr=document.createElement('tr');[r.date,r.type,r.platform,'$'+r.amount.toFixed(2),r.note||''].forEach(v=>{let td=document.createElement('td');td.textContent=v;tr.appendChild(td)});let td=document.createElement('td');let b=document.createElement('button');b.textContent='Delete';b.className='danger';b.onclick=()=>{records.splice(records.length-1-i,1);save()};td.appendChild(b);tr.appendChild(td);$('records').appendChild(tr)});$('status').textContent=user?'Signed in: '+user.email:'Local records only';}
-$('rate').oninput=render;
-function add(type,amount,platform,date,note){if(!amount||amount<=0){alert('Enter an amount greater than zero');return}records.push({type,amount,platform,date,note});save()}
-$('addIncome').onclick=()=>{add('Income',Number($('amount').value),$('platform').value,$('date').value,$('note').value);$('amount').value='';$('note').value=''};
-$('addWithdrawal').onclick=()=>{add('Withdrawal',Number($('withdrawal').value),'Withdrawal',$('wdate').value,'');$('withdrawal').value=''};
-$('export').onclick=()=>{let rows=[['Date','Type','Platform','Amount USD','Note'],...records.map(r=>[r.date,r.type,r.platform,r.amount,r.note||''])];let csv=rows.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\r\n');let blob=new Blob([csv],{type:'text/csv'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='lunga-income-records.csv';a.click();URL.revokeObjectURL(a.href)};
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-async function authAction(mode) {
-  try {
-    if (!fb) await initFirebase();
+const firebaseConfig = {
+  apiKey: "AIzaSyAjOgSp_gvKXBYHNvi38464G5jTkZ89sSs",
+  authDomain: "lunga-income-system.firebaseapp.com",
+  projectId: "lunga-income-system",
+  storageBucket: "lunga-income-system.firebasestorage.app",
+  messagingSenderId: "625417274434",
+  appId: "1:625417274434:web:7f6439d08b4f7c3f4b99db",
+  measurementId: "G-44RQ1MRG2C"
+};
 
-    const m = await import(
-      'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js'
-    );
+const $ = id => document.getElementById(id);
 
-    const email = $('email').value.trim();
-    const password = $('password').value;
+let app;
+let auth;
+let user = null;
+let records = JSON.parse(localStorage.getItem("lungaRecords") || "[]");
 
-    if (!email || !password) {
-      $('authMsg').textContent = 'Enter your email and password.';
-      return;
-    }
+const today = new Date().toISOString().slice(0, 10);
+$("date").value = today;
+$("wdate").value = today;
 
-    if (mode === 'signup') {
-      await m.createUserWithEmailAndPassword(
-        fb.auth, email, password
-      );
-    } else {
-      await m.signInWithEmailAndPassword(
-        fb.auth, email, password
-      );
-    }
+function initFirebase() {
+  if (auth) return auth;
 
-    $('authMsg').textContent = 'Authentication successful! Opening dashboard...';
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
 
-    $('loginCard').classList.add('hidden');
+  return auth;
+}
 
-    $('status').textContent = 'Signed in: ' + email;
+function save() {
+  localStorage.setItem("lungaRecords", JSON.stringify(records));
+  render();
+}
 
-    $('status').scrollIntoView({
-      behavior: 'smooth',
-      block: 'center'
+function render() {
+  const rate = Number($("rate").value) || 0;
+  const income = records
+    .filter(r => r.type === "Income")
+    .reduce((sum, r) => sum + r.amount, 0);
+  const withdrawals = records
+    .filter(r => r.type === "Withdrawal")
+    .reduce((sum, r) => sum + r.amount, 0);
+
+  $("totalUsd").textContent = "$" + income.toFixed(2);
+  $("totalZar").textContent = "R" + (income * rate).toFixed(2);
+  $("netZar").textContent =
+    "R" + ((income - withdrawals) * rate).toFixed(2);
+
+  $("records").innerHTML = "";
+
+  records.slice().reverse().forEach((record, index) => {
+    const tr = document.createElement("tr");
+
+    [
+      record.date,
+      record.type,
+      record.platform,
+      "$" + record.amount.toFixed(2),
+      record.note || ""
+    ].forEach(value => {
+      const td = document.createElement("td");
+      td.textContent = value;
+      tr.appendChild(td);
     });
 
-  } catch (e) {
-    $('authMsg').textContent = 'Login failed: ' + e.message;
+    const td = document.createElement("td");
+    const button = document.createElement("button");
+    button.textContent = "Delete";
+    button.className = "danger";
+
+    button.onclick = () => {
+      records.splice(records.length - 1 - index, 1);
+      save();
+    };
+
+    td.appendChild(button);
+    tr.appendChild(td);
+    $("records").appendChild(tr);
+  });
+
+  $("status").textContent = user
+    ? "Signed in: " + user.email
+    : "Not connected";
+}
+
+async function authAction(mode) {
+  $("authMsg").textContent = "";
+
+  const email = $("email").value.trim();
+  const password = $("password").value;
+
+  if (!email || !password) {
+    $("authMsg").textContent = "Enter your email and password.";
+    return;
+  }
+
+  if (password.length < 6) {
+    $("authMsg").textContent =
+      "Your password must contain at least 6 characters.";
+    return;
+  }
+
+  try {
+    initFirebase();
+
+    if (mode === "signup") {
+      await createUserWithEmailAndPassword(auth, email, password);
+    } else {
+      await signInWithEmailAndPassword(auth, email, password);
+    }
+
+    $("authMsg").textContent = "Login successful!";
+  } catch (error) {
+    $("authMsg").textContent =
+      "Login failed: " + error.message;
   }
 }
-$('signup').onclick=()=>authAction('signup');$('signin').onclick=()=>authAction('signin');$('logout').onclick=async()=>{if(fb){let m=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');await m.signOut(fb.auth)}user=null;render()};render();
-</script></body></html>
+
+$("signup").onclick = () => authAction("signup");
+$("signin").onclick = () => authAction("signin");
+
+$("connect").onclick = () => {
+  try {
+    initFirebase();
+    $("firebaseMsg").textContent =
+      "Firebase initialized. You can now sign in or create an account.";
+  } catch (error) {
+    $("firebaseMsg").textContent =
+      "Connection error: " + error.message;
+  }
+};
+
+onAuthStateChanged(initFirebase(), currentUser => {
+  user = currentUser;
+  $("loginCard").classList.toggle("hidden", !!user);
+  render();
+});
+
+$("logout").onclick = async () => {
+  if (auth && user) {
+    await signOut(auth);
+  }
+};
+
+$("rate").oninput = render;
+
+function add(type, amount, platform, date, note) {
+  if (!Number.isFinite(amount) || amount <= 0) {
+    alert("Enter an amount greater than zero.");
+    return;
+  }
+
+  records.push({ type, amount, platform, date, note });
+  save();
+}
+
+$("addIncome").onclick = () => {
+  add(
+    "Income",
+    Number($("amount").value),
+    $("platform").value,
+    $("date").value,
+    $("note").value
+  );
+
+  $("amount").value = "";
+  $("note").value = "";
+};
+
+$("addWithdrawal").onclick = () => {
+  add(
+    "Withdrawal",
+    Number($("withdrawal").value),
+    "Withdrawal",
+    $("wdate").value,
+    ""
+  );
+
+  $("withdrawal").value = "";
+};
+
+$("export").onclick = () => {
+  const rows = [
+    ["Date", "Type", "Platform", "Amount USD", "Note"],
+    ...records.map(r => [
+      r.date, r.type, r.platform, r.amount, r.note || ""
+    ])
+  ];
+
+  const csv = rows
+    .map(row =>
+      row.map(value =>
+        '"' + String(value).replaceAll('"', '""') + '"'
+      ).join(",")
+    )
+    .join("\r\n");
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = "lunga-income-records.csv";
+  link.click();
+
+  URL.revokeObjectURL(url);
+};
+
+render();
+</script>
