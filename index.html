@@ -20,8 +20,47 @@ function add(type,amount,platform,date,note){if(!amount||amount<=0){alert('Enter
 $('addIncome').onclick=()=>{add('Income',Number($('amount').value),$('platform').value,$('date').value,$('note').value);$('amount').value='';$('note').value=''};
 $('addWithdrawal').onclick=()=>{add('Withdrawal',Number($('withdrawal').value),'Withdrawal',$('wdate').value,'');$('withdrawal').value=''};
 $('export').onclick=()=>{let rows=[['Date','Type','Platform','Amount USD','Note'],...records.map(r=>[r.date,r.type,r.platform,r.amount,r.note||''])];let csv=rows.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\r\n');let blob=new Blob([csv],{type:'text/csv'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='lunga-income-records.csv';a.click();URL.revokeObjectURL(a.href)};
-async function initFirebase(){try{let cfg=JSON.parse($('firebaseConfig').value);let appmod=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');let authmod=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');fb={app:appmod.initializeApp(cfg),auth:authmod.getAuth()};authmod.onAuthStateChanged(fb.auth,u=>{user=u;render()});$('firebaseMsg').textContent='Firebase initialized. Email/password sign-in is ready if enabled in Firebase Console.';return authmod}catch(e){$('firebaseMsg').textContent='Could not connect: '+e.message;throw e}}
-$('connect').onclick=async()=>{try{await initFirebase()}catch(e){}};
-async function authAction(mode){try{if(!fb)await initFirebase();let m=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');let email=$('email').value,password=$('password').value;if(mode==='signup')await m.createUserWithEmailAndPassword(fb.auth,email,password);else await m.signInWithEmailAndPassword(fb.auth,email,password);$('authMsg').textContent='Authentication successful.'}catch(e){$('authMsg').textContent=e.message}}
+
+async function authAction(mode) {
+  try {
+    if (!fb) await initFirebase();
+
+    const m = await import(
+      'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js'
+    );
+
+    const email = $('email').value.trim();
+    const password = $('password').value;
+
+    if (!email || !password) {
+      $('authMsg').textContent = 'Enter your email and password.';
+      return;
+    }
+
+    if (mode === 'signup') {
+      await m.createUserWithEmailAndPassword(
+        fb.auth, email, password
+      );
+    } else {
+      await m.signInWithEmailAndPassword(
+        fb.auth, email, password
+      );
+    }
+
+    $('authMsg').textContent = 'Authentication successful! Opening dashboard...';
+
+    $('loginCard').classList.add('hidden');
+
+    $('status').textContent = 'Signed in: ' + email;
+
+    $('status').scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    });
+
+  } catch (e) {
+    $('authMsg').textContent = 'Login failed: ' + e.message;
+  }
+}
 $('signup').onclick=()=>authAction('signup');$('signin').onclick=()=>authAction('signin');$('logout').onclick=async()=>{if(fb){let m=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');await m.signOut(fb.auth)}user=null;render()};render();
 </script></body></html>
