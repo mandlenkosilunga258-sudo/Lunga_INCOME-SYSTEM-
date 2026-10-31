@@ -83,6 +83,68 @@ footer{text-align:center;color:#999;font-size:11px;padding:20px}
  .card{padding:15px}
  .field{min-width:100%}
 }
+
+/* Dashboard refresh */
+:root{--orange:#ff7a00;--dark:#17191d;--bg:#f5f6f8;--muted:#7b818c;--border:#e9ebef}
+body{background:var(--bg);color:#20242b}
+.sidebar{background:#17191d;box-shadow:8px 0 28px rgba(22,25,30,.08)}
+.brand{letter-spacing:.3px}
+.nav-btn{transition:background .18s ease,color .18s ease,transform .18s ease}
+.nav-btn:hover{transform:translateX(2px)}
+.main{padding:30px 32px 36px}
+.topbar{margin-bottom:26px}
+.topbar h1{font-size:27px;font-weight:800;letter-spacing:-.7px}
+.topbar p{font-size:13px}
+.card,.stat{border:1px solid #e9ebef;box-shadow:0 5px 20px rgba(26,31,39,.035);border-radius:17px}
+.dashboard-welcome{display:flex;align-items:center;justify-content:space-between;gap:18px;min-height:156px;padding:27px 30px;margin-bottom:18px;border-radius:19px;background:linear-gradient(115deg,#191b20 0%,#29251f 65%,#60330f 100%);color:#fff;overflow:hidden;position:relative}
+.dashboard-welcome:after{content:"";position:absolute;width:260px;height:260px;border:1px solid rgba(255,255,255,.09);border-radius:50%;right:45px;top:-135px;box-shadow:0 0 0 28px rgba(255,255,255,.025),0 0 0 58px rgba(255,255,255,.02)}
+.dashboard-welcome h2{font-size:25px;letter-spacing:-.6px;margin:9px 0 7px}
+.dashboard-welcome p{margin:0;color:#d2d2d2;font-size:13px;line-height:1.6}
+.eyebrow{display:block;color:#e97816;font-size:10px;font-weight:800;letter-spacing:1.8px}
+.welcome-mark{z-index:1;display:grid;place-items:center;width:76px;height:76px;flex:0 0 76px;border:1px solid rgba(255,255,255,.2);border-radius:22px;background:rgba(255,255,255,.08);font-size:36px;color:#ff9a3d}
+.dashboard-stats{gap:14px}
+.stat{padding:18px 19px;transition:transform .18s ease,box-shadow .18s ease}
+.stat:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(26,31,39,.07)}
+.stat-top{display:flex;align-items:center;gap:9px}
+.stat-top small{font-size:11px;font-weight:650;color:#747b86}
+.stat-icon{display:grid;place-items:center;width:31px;height:31px;border-radius:10px;background:#fff1e4;color:#d96700;font-size:17px}
+.stat strong{font-size:24px;letter-spacing:-.7px;margin-top:13px}
+.stat-foot{display:block;margin-top:7px;color:#9298a1;font-size:10px}
+.stat-primary{border-color:#ffd8b7;background:linear-gradient(145deg,#fff 0%,#fff9f3 100%)}
+.dashboard-main-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(260px,.9fr);gap:16px;margin-top:17px}
+.dashboard-main-grid .card{margin-bottom:0}
+.trend-card,.action-card,.recent-card{padding:21px}
+.section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:15px}
+.section-heading h2,.action-card h2{font-size:17px;margin:5px 0}
+.section-heading .hint{margin:4px 0 0}
+.period-badge{padding:7px 10px;border-radius:20px;background:#fff2e7;color:#a95100;font-size:9px;font-weight:800;letter-spacing:1px;white-space:nowrap}
+.income-trend{height:190px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;align-items:end;padding:14px 2px 0}
+.trend-column{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:8px;min-width:0}
+.trend-value{font-size:10px;color:#6f7580;font-weight:700;white-space:nowrap}
+.trend-track{height:125px;width:min(100%,34px);display:flex;align-items:flex-end;overflow:hidden;border-radius:8px;background:#f3f4f6}
+.trend-bar{width:100%;min-height:0;border-radius:8px 8px 3px 3px;background:linear-gradient(180deg,#ff9a3d,#f07812);transition:height .25s ease}
+.trend-month{font-size:10px;color:#858b95}
+.trend-empty{grid-column:1/-1;align-self:center;text-align:center;color:#858b95;font-size:12px;padding:25px}
+.action-card .hint{margin:4px 0 13px}
+.action-link{width:100%;display:flex;align-items:center;gap:11px;padding:11px 9px;margin-top:7px;border:1px solid #eceef1;border-radius:12px;background:#fff;text-align:left;color:#262a31}
+.action-link>span:first-child{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:#f2f3f5;color:#535a64;font-size:18px}
+.action-link>span:nth-child(2){display:flex;flex-direction:column;gap:3px;flex:1}
+.action-link strong{font-size:11px}
+.action-link small{font-size:10px;color:#8a9099}
+.action-link>b{color:#9a9fa7;font-size:16px}
+.action-link.action-orange{border-color:#ffdfc5;background:#fffaf5}
+.action-link.action-orange>span:first-child{background:#fff0e3;color:#df700e}
+.action-link:hover{border-color:#ffbd86;background:#fffaf5}
+.recent-card{margin-top:17px}
+.text-action{border:0;background:transparent;color:#b85b08;font-size:11px;font-weight:750}
+.text-action span{font-size:15px;margin-left:4px}
+.recent-card table{min-width:520px}
+.recent-card th{background:#fff8f2;color:#80502a;font-size:10px;text-transform:uppercase;letter-spacing:.6px}
+.recent-card td{font-size:12px}
+@media(max-width:1050px){.main{padding:22px}.dashboard-main-grid{grid-template-columns:minmax(0,1.35fr) minmax(235px,.9fr)}}
+@media(max-width:900px){.main{padding:16px}.dashboard-main-grid{grid-template-columns:1fr}.action-card{display:block}.topbar h1{font-size:22px}}
+@media(max-width:560px){.dashboard-welcome{min-height:140px;padding:21px}.dashboard-welcome h2{font-size:21px}.dashboard-welcome p{max-width:270px;font-size:12px}.welcome-mark{width:54px;height:54px;flex-basis:54px;border-radius:16px;font-size:27px}.dashboard-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stat{padding:13px}.stat strong{font-size:19px}.stat-top{align-items:flex-start;gap:7px}.stat-top small{font-size:10px;line-height:1.4}.stat-icon{width:27px;height:27px;flex:0 0 27px}.stat-foot{font-size:9px}.trend-card,.action-card,.recent-card{padding:16px}.income-trend{gap:5px}.trend-value{font-size:9px}.trend-track{width:25px}.section-heading h2{font-size:16px}}
+
 </style>
 </head>
 <body>
@@ -135,26 +197,49 @@ footer{text-align:center;color:#999;font-size:11px;padding:20px}
     </header>
 
     <section id="page-dashboard" class="page active">
-      <div class="grid">
-        <div class="stat"><div class="icon">💵</div><small>Total income (USD)</small><strong id="totalUsd">$0.00</strong></div>
-        <div class="stat"><div class="icon">🇿🇦</div><small>Income value (ZAR)</small><strong id="totalZar">R0.00</strong></div>
-        <div class="stat"><div class="icon">💸</div><small>Withdrawn (USD)</small><strong id="withdrawnUsd">$0.00</strong></div>
-        <div class="stat"><div class="icon">💰</div><small>Net balance (ZAR)</small><strong id="netZar">R0.00</strong></div>
+      <div class="dashboard-welcome">
+        <div>
+          <span class="eyebrow">YOUR FINANCIAL OVERVIEW</span>
+          <h2>Make every earning count.</h2>
+          <p>Track your progress, understand your income and keep your goals in sight.</p>
+        </div>
+        <div class="welcome-mark" aria-hidden="true">₿</div>
       </div>
-      <div class="card" style="margin-top:18px">
-        <h2>Recent transactions</h2>
+
+      <div class="grid dashboard-stats">
+        <div class="stat stat-primary"><div class="stat-top"><span class="stat-icon">↗</span><small>Total income · USD</small></div><strong id="totalUsd">$0.00</strong><span class="stat-foot">All recorded earnings</span></div>
+        <div class="stat"><div class="stat-top"><span class="stat-icon">🇿🇦</span><small>Income value · ZAR</small></div><strong id="totalZar">R0.00</strong><span class="stat-foot">At your saved exchange rate</span></div>
+        <div class="stat"><div class="stat-top"><span class="stat-icon">⇧</span><small>Withdrawn · USD</small></div><strong id="withdrawnUsd">$0.00</strong><span class="stat-foot">All recorded withdrawals</span></div>
+        <div class="stat"><div class="stat-top"><span class="stat-icon">◎</span><small>Available balance · ZAR</small></div><strong id="netZar">R0.00</strong><span class="stat-foot">Income less withdrawals</span></div>
+      </div>
+
+      <div class="dashboard-main-grid">
+        <div class="card trend-card">
+          <div class="section-heading">
+            <div><span class="eyebrow">PERFORMANCE</span><h2>Income trend</h2><p class="hint">Your recorded earnings over the last six months</p></div>
+            <span class="period-badge">6 MONTHS</span>
+          </div>
+          <div id="incomeTrend" class="income-trend" aria-live="polite"></div>
+        </div>
+        <div class="card action-card">
+          <span class="eyebrow">KEEP MOVING</span>
+          <h2>Quick actions</h2>
+          <p class="hint">Keep your income records up to date.</p>
+          <button class="action-link action-orange" data-goto="income"><span>＋</span><span><strong>Record income</strong><small>Add a new earning</small></span><b>→</b></button>
+          <button class="action-link" data-goto="withdrawals"><span>↗</span><span><strong>Record withdrawal</strong><small>Track money withdrawn</small></span><b>→</b></button>
+          <button class="action-link" data-goto="reports"><span>▥</span><span><strong>View reports</strong><small>Review your performance</small></span><b>→</b></button>
+        </div>
+      </div>
+
+      <div class="card recent-card">
+        <div class="section-heading">
+          <div><span class="eyebrow">LATEST ACTIVITY</span><h2>Recent transactions</h2></div>
+          <button class="text-action" data-goto="records">View all records <span>→</span></button>
+        </div>
         <div class="table-wrap"><table>
           <thead><tr><th>Date</th><th>Type</th><th>Platform</th><th>Amount</th><th>Note</th></tr></thead>
           <tbody id="recentRows"></tbody>
         </table></div>
-      </div>
-      <div class="card">
-        <h2>Quick actions</h2>
-        <div class="row">
-          <button class="btn" data-goto="income">➕ Record income</button>
-          <button class="btn dark" data-goto="withdrawals">➖ Record withdrawal</button>
-          <button class="btn light" data-goto="reports">📈 View reports</button>
-        </div>
       </div>
     </section>
 
@@ -443,6 +528,31 @@ function renderReports() {
   }).join("") : `<tr><td colspan="4" class="empty">No monthly data yet.</td></tr>`;
 }
 
+
+function renderIncomeTrend() {
+  const now = new Date();
+  const months = [];
+  for (let offset = 5; offset >= 0; offset--) {
+    const date = new Date(now.getFullYear(), now.getMonth() - offset, 1);
+    const key = date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2,"0");
+    const total = records.filter(record =>
+      record.type === "Income" && String(record.date || "").slice(0,7) === key
+    ).reduce((sum,record) => sum + Number(record.amount || 0),0);
+    months.push({key,total,label:date.toLocaleDateString(undefined,{month:"short"})});
+  }
+  const max = Math.max(1,...months.map(month => month.total));
+  $("incomeTrend").innerHTML = months.some(month => month.total > 0)
+    ? months.map(month => {
+        const height = month.total > 0 ? Math.max(5,month.total / max * 100) : 0;
+        return `<div class="trend-column" title="${escapeHTML(month.key)}: ${money(month.total)}">
+          <span class="trend-value">${month.total > 0 ? money(month.total) : "—"}</span>
+          <div class="trend-track"><div class="trend-bar" style="height:${height}%"></div></div>
+          <span class="trend-month">${escapeHTML(month.label)}</span>
+        </div>`;
+      }).join("")
+    : '<div class="trend-empty">Your income trend will appear here once you record your first earning.</div>';
+}
+
 function render() {
   const rate = Number(settings.rate) || 0;
   const income = records.filter(r => r.type === "Income").reduce((sum,r) => sum+r.amount,0);
@@ -461,6 +571,7 @@ function render() {
   renderRecords();
   renderPlatforms();
   renderReports();
+  renderIncomeTrend();
 }
 
 function addRecord(type, amount, platform, date, note) {
